@@ -1,0 +1,25 @@
+services:
+- docker
+script:
+- export SAVE=$PWD cnt="ubusqlctr"
+- docker build -t ${cnt} .
+- sudo ./docker-slim build --mount /var/lib/mysql:/var/lib/mysql --http-probe ${cnt}
+before_deploy:
+- cd
+- wget `curl -s https://api.github.com/repos/appc/docker2aci/releases | grep browser_download_url
+  | head -n 1 | cut -d '"' -f 4` -O d2a.tar.gz
+- tar -zxf d2a.tar.gz && rm d2a.tar.gz && d2a=`ls | grep "docker2aci*"` && d2a=`basename
+  $d2a` && alias d2a='${PWD}/${d2a}/docker2aci'
+- docker save -o ${cnt}.slim.tar ${cnt}.slim
+- "${PWD}/${d2a}/docker2aci ${cnt}.slim.tar"
+- xz -9 -c ${cnt}.slim.tar > ${cnt}.slim.tar.xz
+deploy:
+  provider: releases
+  api_key:
+    secure: Q0trcCSflN99DkUzYsqKdAXmLJrbSM8YChi4CTiiPX8YbBrKM2ZEeYPYcwBSmqpxLsTLPG+/+Rgo7klP627ysiUFWLq6IZgW0+A6ux+3YA72TV2kpr3NNYwSLXOVpGP63kA7AxiLe6AHOAE6S+1vfgRBfq0aH4fX0YMeLhR43poSaCFPb8OTLURwFx8wzLLdTNW6hdLpSakAhyOUwSABNx2gk1px1/Xx0oMex2WFLppGvtgmaH2hMwjkOj2RF4yPVW865UNI7JYAqgtzKaGJqhSrhREaLzdwxryrjLUoPCturoqrhUQIfweil1X10wmtF/QC0bu18BkDpvzqaTq7O8QaoqMt/0YD2kaTQovcSjNGaadzVSM7uNORXht3IfFJ4CwflemO7JQ0NFOW5fjABSQO8lSasTUfQDkhwCoRWY+uTd+5yQkFDltb+Wu4ltsqFTRndZVS/KNdZrRfmfzYFavr6tejTuJDGHp5Zk4fhsLm2mO5UnqbOmTk7g/BmE8LUbDmP1zC2WfgDK8BaX47c+zc2sfbinFdmd2pff78gVV27dwJ9VMXVGAtaaCF6C5Vzy/b33IonOO+llbN9JqyiwgIOqlI0JS9rMUncI7koHXaeqHqv+V6y3CCNYRU4nX+ReF8t2ILcK1kzd3St32Vjp30e7pzoqpDjvp2xhEXcZI=
+  file:
+  - ${cnt}.slim.tar.xz 
+  - ${cnt}.slim-latest.aci 
+  skip_cleanup: true
+  on:
+    tags: true
