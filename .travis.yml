@@ -3,7 +3,7 @@ services:
 script:
 - export SAVE=$PWD cnt="ubusqlctr"
 - docker build -t ${cnt} .
-- sudo ./docker-slim build --continue-after probe --mount /var/lib/mysql:/var/lib/mysql --http-probe ${cnt}
+- sudo ./docker-slim build --include-path /bin/mkdir --include-path /bin/touch --include-path /bin/chmod --continue-after probe --mount /var/lib/mysql:/var/lib/mysql --http-probe ${cnt}
 before_deploy:
 - cd
 - wget `curl -s https://api.github.com/repos/appc/docker2aci/releases | grep browser_download_url
