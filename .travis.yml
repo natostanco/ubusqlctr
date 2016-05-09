@@ -1,9 +1,11 @@
 services:
 - docker
 script:
-- export SAVE=$PWD cnt="ubusqlctr"
+- export SAVE=$PWD cnt="ubusqlctr" slim=".slim"
 - docker build -t ${cnt} .
-- sudo ./docker-slim build --include-path /bin/mkdir --include-path /bin/touch --include-path /bin/chmod --continue-after probe --mount /var/lib/mysql:/var/lib/mysql --http-probe ${cnt}
+- sudo ./docker-slim build --include-path /bin/mkdir --include-path /bin/touch --include-path
+  /bin/chmod --continue-after probe --mount /var/lib/mysql:/var/lib/mysql --http-probe
+  ${cnt}
 before_deploy:
 - cd
 - wget `curl -s https://api.github.com/repos/appc/docker2aci/releases | grep browser_download_url
@@ -13,13 +15,21 @@ before_deploy:
 - docker save -o ${cnt}.slim.tar ${cnt}.slim
 - "${PWD}/${d2a}/docker2aci ${cnt}.slim.tar"
 - xz -9 -c ${cnt}.slim.tar > ${cnt}.slim.tar.xz
+- docker login -e $QUAYE -u $QUAYL -p $QUAYP  quay.io
+- docker tag ${cnt}${slim} quay.io/natostanco/$cnt:$TRAVIS_TAG
+- docker push quay.io/natostanco/$cnt:$TRAVIS_TAG
 deploy:
   provider: releases
   api_key:
     secure: qdwzSqdO3vzl0jZFnB6tpHdTnC10dhex+9Z2kdyc3quO5MpnMjqPhpPcTyDBoO01XuSVsIgCk8am3wzKxofIrheaERaeF8adFtbbk7jVkQHt+JELIisicd+kr1RxqtRMSfvvJ4fffjsp9OYAiMKkpfwhKDoWjZTCpG6nMnmMrVAWrMSMfEKxy5MxQZdAX0JpH/2cE22Qp8vHmynlAJySvtHDfDCFBvKzWxWTfixkh+WPqf045huSl3ejNoYlGvfpB43uwOlU2bQbdiwfuZld8aYQ9NaaoVFO4Q3yPfkAWiwsBXgL+t1+GWezPnTxUdvMNdk0N+mRdgvKRtZCy5rXvUMe5H9QbBJYicwQt2oJoSi+5p/uL6VNnjreg8GIgt5ndgo8ah5oHxLn94Cg/KboCbFw0/vheJD8JB63kDc09RG1eBgY1HYN1smrZoAjTx70n+le+RXorH7xVZO01Wu6dGOKjw65M/IYpa1+tgjl55kRlJEyRWyGq412Xq+WXlsqB8oBOs+TR15sQaB8xjYQ6kCpefejdlg0juwLJda/0E/gaPPkIpLTahRcop7S+oeLZiLC7zcS+uPGe+p7ow2k0pRZe25Z7EHb5OVBPAOaweWtCZiRNTioib0D3moo1UEkEGUTjWpDlBToUtFSPY//5vxHkBfN2fizLH+pKw3/Atc=
   file:
-  - ${cnt}.slim.tar.xz 
-  - ${cnt}.slim-latest.aci 
+  - "${cnt}.slim.tar.xz"
+  - "${cnt}.slim-latest.aci"
   skip_cleanup: true
   on:
     tags: true
+env:
+  global:
+  - secure: kxaDUmCzKRjZzE6hmW3FdNNgIfFjlFVJpmFroxXKFE60FVB/C/azSZqBXom18PH/97Gu9M6aFX0YbXOGD2s8MRWD1u7gpszVZfKeeELLN8wVQz68nxlKLaLa8bvtBjX1vZaCkckxn9S+3AFD5a6jucMM0roCmA3dUUbvJYalbCjKTCyvOi8KOob2JSWn9BJ9J38ikCUg/VKsmRExr05TceVyilnv/T03fuV2bd8VOOkRRNdW1/ebyCPBjRZZPnePhewamc48w6Y4a60bI+c0vtVTAPkhAUYBKTlkz6+CtyEoKfBfaslj6m7xrWpiqKY35H9SkJvAkRoqggXZJnJCKbrInYX91PH4xJpTUfUVmXrf7uZ1mCRLgN65kKt9ru5mSmBoE3HWhRNbAJjYjOqDAbMGssjSNB5QssGK6QMx9I121iAUsuqoznsCAd1HdDoYBudFvJ/mP5hpnIp+c/wS1nXaTSSfM2bgwcot2Dh7txZEZfhT6RDieJcMzT/2gsU87VfmOECKuUe5DLyePLCHjAqpMZhFBk0pXOH/fa073CJPryvfCvdtWR7zyr83+pmd/v8TDtg8cLUrSTP05ztTMnVsZp33GmzXxsCyIqnOfZ0jLRjysVt3uN/kPzTNdwtlZCswZ/ULI4nTDXuv+8/TyBZiDCOP7ZGfwBwMFAUHLnk=
+  - secure: gzKh8TqwgOTUAzbFF/iVV3L2lfAQtTlbU1j0Sw0RseEuBp1pp0j6l1fZw0xMJwe+hF/QYGpDVPfb0ipH1IRhRODqKFITEUD9YJB2R9bzvcjeHcnURSW0cYOTgZdg06cXbZOO9vScXSovJbxowCAWeCv762uJo36cR3uEvxYcFPm1pYcxz4qz46eV2wcVBuR8CFI5W3eyzELSyTdXaRVCdNkmIdugxWJcHuedp2mLgb7paxyxvOl2kkaBgRDU5MDVj6ote6AvOm5cOX640nCDgaoNu3QCcN08QVUPyagEuOZn9lHxJ9N3nA/mc6M0QtjkDwX84YZd1RUHfdm6GCCLojPp4eQu6uIO+xHaqVIyOTf6XYO5G73BWnXAFckIfP7fuLoat2xJWTd+sA0Z9f3hylMB56NdL+bwlmyzRonUYPt+pSUwhfeDU+ojTQ7lA6Y7PpMevokDonDbpvWJvFziDIqSZEC/3jfZZGE8s2wUThpho6s7bVdKVbR2CjoMBRFKsIfBwbROJjys10tcY+dMC6qMyu0dL2/X5kx7K6L9BjLfl+STeYX++wugwj5s6gBfAkwOSyt4dNhA8J4H8GliY92sgKYXWSoEzcH5ArxXDatfwB9AvCYjgtG+0Z+lgUV2vbdENMvYl8r477S1YMMMsF3xwVDjcOcZ2ZLbttToa1M=
+  - secure: ugkzQtA+IAcARQpoYv1XqPM67FGRA1qv0qIX67EumffYa2mE9wG41lFu7Z0pZY1SEc+RjiedrQAqzaRCj3CXfHeUzmO/SF+rB8OsWrFa5382VacBbHOWeliRfJhXMTOtEldIBb3uvf+sJz9tE5yOBbKNQo43x9elTOOFNQDInmZM+buwRMjhwQFneaLW9kKrEVGAJsXAQEasohblaEMV7ZX229RfPfc+Kz+wNXlWXcvnlV2/2nBRJHFLsjsez3pmhlhA4nWCC5s5aKtUqAb/7PagRAFImLsBgK4KKCQIhbFzwGDzqngSQyrlU3mmaqSiijUVEO7+UvEEkTeiaMeg5jdfpXO+nZyd1cEZ926QgqAqmhxE08ik8ckI82V8V8CGNOOKWrPbGB0oIqpOsYYr3sVL7bwJ+XBLNbePyYraAXyvpLA7PYMhBkJNHQzuUgy7JLL/+CH7St9TXlMK37c2tAHQNwdxcAm18jhekG68JHirNgqXVlVScb8Pt+2pi9R6THcrYrbU9ODxXNzRczm9Fg50pGxekonuNgXg5bPP5I2WhHlfE5z6eCCHNGgHkMDYDR59k+jNPXnTMi6rSLM7EKw+sF3hHww3MNQ0zMDGADTn3k00Qay25GqmUoGRjyvYeNQ8Zk1ZdspdrFNY1335HnfFl4rsIlQMWAFPtUR4X94=
