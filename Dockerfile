@@ -5,8 +5,8 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F1656F24C74CD1D8 \
 
 RUN apt-get update
 RUN \
-	echo mysql-server mysql-server/root_password password rootpass | sudo debconf-set-selections \
- &&	echo mysql-server mysql-server/root_password_again password rootpass | sudo debconf-set-selections \
+	echo mysql-server mysql-server/root_password password rootpass | debconf-set-selections \
+ &&	echo mysql-server mysql-server/root_password_again password rootpass | debconf-set-selections \
  &&	apt-get upgrade -y -q -o Dpkg::Options::="--force-confold" \
  && apt-get install mariadb-server mariadb-client -y -q
 
