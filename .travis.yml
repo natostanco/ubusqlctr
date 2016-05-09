@@ -3,15 +3,20 @@ services:
 script:
 - export SAVE=$PWD cnt="ubusqlctr" slim=".slim"
 - docker build -t ${cnt} .
-- sudo ./docker-slim build --include-path /bin/mkdir --include-path /bin/touch --include-path
-  /bin/chmod --continue-after probe --mount /var/lib/mysql:/var/lib/mysql --http-probe
-  ${cnt}
+- >
+  sudo ./docker-slim build 
+  --include-path /bin/mkdir 
+  --include-path /bin/touch 
+  --include-path /bin/chmod 
+  --continue-after probe 
+  --mount /var/lib/mysql:/var/lib/mysql 
+  --http-probe 
+  ${cnt} 
+  
 before_deploy:
 - cd
-- wget `curl -s https://api.github.com/repos/appc/docker2aci/releases | grep browser_download_url
-  | head -n 1 | cut -d '"' -f 4` -O d2a.tar.gz
-- tar -zxf d2a.tar.gz && rm d2a.tar.gz && d2a=`ls | grep "docker2aci*"` && d2a=`basename
-  $d2a` && alias d2a='${PWD}/${d2a}/docker2aci'
+- wget `curl -s https://api.github.com/repos/appc/docker2aci/releases | grep browser_download_url | head -n 1 | cut -d '"' -f 4` -O d2a.tar.gz
+- tar -zxf d2a.tar.gz && rm d2a.tar.gz && d2a=`ls | grep "docker2aci*"` && d2a=`basename  $d2a` && alias d2a='${PWD}/${d2a}/docker2aci'
 - docker save -o ${cnt}.slim.tar ${cnt}.slim
 - "${PWD}/${d2a}/docker2aci ${cnt}.slim.tar"
 - xz -9 -c ${cnt}.slim.tar > ${cnt}.slim.tar.xz
