@@ -1,7 +1,7 @@
-FROM ubuntu:latest
+FROM ubuntu:16.04
 
-RUN sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys cbcb082a1bb943db \
- && echo "deb http://mirror2.hs-esslingen.de/mariadb/repo/10.1/ubuntu trusty main" >> /etc/apt/sources.list
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F1656F24C74CD1D8 \
+ && echo "deb http://mirror2.hs-esslingen.de/mariadb/repo/10.1/ubuntu xenial main" >> /etc/apt/sources.list
 
 RUN apt-get update
 RUN \
