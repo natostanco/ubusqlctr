@@ -8,6 +8,7 @@ script:
   --include-path /bin/mkdir 
   --include-path /bin/touch 
   --include-path /bin/chmod 
+  --include-path /usr/lib/mysql
   --continue-after probe 
   --mount /var/lib/mysql:/var/lib/mysql 
   --http-probe 
