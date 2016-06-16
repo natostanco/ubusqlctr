@@ -7,6 +7,7 @@ script:
   sudo ./docker-slim build 
   --mount ${SAVE}/scripts:/scripts
   --entrypoint /scripts/testsql.sh
+  --include-path /entry.sh
   --include-path /bin/mkdir 
   --include-path /bin/touch 
   --include-path /bin/chmod 
