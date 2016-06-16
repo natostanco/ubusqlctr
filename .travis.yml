@@ -8,6 +8,9 @@ script:
   --include-path /bin/mkdir 
   --include-path /bin/touch 
   --include-path /bin/chmod 
+  --include-path /bin/ls
+  --include-path /bin/echo
+  --include-path /bin/sleep
   --include-path /usr/lib/mysql
   --continue-after probe 
   --mount /var/lib/mysql:/var/lib/mysql 
