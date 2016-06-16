@@ -14,7 +14,7 @@ script:
   --include-path /bin/echo
   --include-path /bin/sleep
   --include-path /usr/lib/mysql
-  --continue-after probe 
+  --continue-after 10
   --mount /var/lib/mysql:/var/lib/mysql 
   --http-probe 
   ${cnt} 
